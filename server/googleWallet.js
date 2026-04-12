@@ -68,7 +68,7 @@ async function createLoyaltyClass() {
 async function createLoyaltyObject(card, customer) {
   const token = await getAccessToken();
   const stamps = card.stamps || 0;
-  const objectId = `${ISSUER_ID}.card_${card.id.replace(/-/g, '_')}`;
+  const objectId = `${ISSUER_ID}.card${card.id.replace(/-/g, '')}`;
 
   const objectBody = {
     id: objectId,
@@ -119,7 +119,7 @@ async function createLoyaltyObject(card, customer) {
 async function updateLoyaltyObject(card, customer) {
   const token = await getAccessToken();
   const stamps = card.stamps || 0;
-  const objectId = `${ISSUER_ID}.card_${card.id.replace(/-/g, '_')}`;
+  const objectId = `${ISSUER_ID}.card${card.id.replace(/-/g, '')}`;
 
   const patch = {
     loyaltyPoints: { label: '飲 Tampons', balance: { int: stamps } },
@@ -149,7 +149,7 @@ async function updateLoyaltyObject(card, customer) {
 // ── Generate "Add to Google Wallet" link ──────────────────────────────────────
 async function generateWalletLink(card, customer) {
   const creds = getCredentials();
-  const objectId = `${ISSUER_ID}.card_${card.id.replace(/-/g, '_')}`;
+  const objectId = `${ISSUER_ID}.card${card.id.replace(/-/g, '')}`;
 
   const claims = {
     iss: creds.client_email,
