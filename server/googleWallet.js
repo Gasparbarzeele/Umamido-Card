@@ -34,6 +34,10 @@ async function createLoyaltyClass() {
     id: CLASS_ID,
     issuerName: 'Umamido',
     programName: 'うまみ道 Fidélité',
+    programLogo: {
+      sourceUri: { uri: 'https://umamido-card-test.up.railway.app/images/logo.png' },
+      contentDescription: { defaultValue: { language: 'fr-FR', value: 'Umamido Logo' } }
+    },
     rewardsTier: '飲 Tampon',
     rewardsTierLabel: 'Niveau',
     accountNameLabel: 'Membre',
