@@ -94,6 +94,10 @@ async function createLoyaltyObject(card, customer) {
       }
     ],
     hexBackgroundColor: '#1a1e5a',
+    barcode: {
+      type: 'TEXT_ONLY',
+      alternateText: card.id.substring(0, 8).toUpperCase()
+    },
     heroImage: {
       sourceUri: { uri: `${process.env.BASE_URL}/api/card-image/${card.id}?t=${Date.now()}` },
       contentDescription: { defaultValue: { language: 'fr-FR', value: 'Carte Umamido' } }
