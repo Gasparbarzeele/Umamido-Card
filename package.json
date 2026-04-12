@@ -15,7 +15,6 @@
     "dotenv": "^16.4.1",
     "google-auth-library": "^9.6.3",
     "axios": "^1.6.7",
-    "jsonwebtoken": "^9.0.2",
-    "canvas": "^2.11.2"
+    "jsonwebtoken": "^9.0.2"
   }
 }

@@ -1,174 +1,64 @@
-// server/cardImage.js — Génération d'image dynamique pour Google Wallet
-// Requires: npm install canvas
-
-const { createCanvas, loadImage, registerFont } = require('canvas');
-const path = require('path');
-const fs = require('fs');
-
-const FONTS_DIR = path.resolve('./fonts');
-const FOX_PATH = path.resolve('./public/images/logo.png');
-
-// Register Bebas Neue if available
-function registerFonts() {
-  const bebasPath = path.join(FONTS_DIR, 'BebasNeue-Regular.ttf');
-  if (fs.existsSync(bebasPath)) {
-    registerFont(bebasPath, { family: 'BebasNeue' });
-  }
-}
-
-try { registerFonts(); } catch(e) {}
-
-const W = 1032;
-const H = 336;
-const NAVY  = '#1a1e5a';
+// server/cardImage.js — SVG card image (no native deps)
+const STAMPS_FOR_REWARD = 10;
+const NAVY = '#1a1e5a';
 const ORANGE = '#e8461e';
-const WHITE  = '#ffffff';
-const STAMPS = 10;
 
-function drawHankoStamp(ctx, cx, cy, r, filled) {
-  ctx.save();
+function generateCardSVG(stamps = 0) {
+  const W = 1032, H = 336;
+  const stampR = 30;
+  const stampGap = 12;
+  const cols = 5;
+  const startX = 280;
+  const totalStampW = cols * (stampR * 2) + (cols - 1) * stampGap;
+  const sy = 28;
 
-  if (filled) {
-    // Outer dashed circle
-    ctx.beginPath();
-    ctx.setLineDash([8, 4]);
-    ctx.strokeStyle = ORANGE;
-    ctx.lineWidth = 3;
-    ctx.arc(cx, cy, r - 3, 0, Math.PI * 2);
-    ctx.stroke();
-
-    // Inner circle
-    ctx.beginPath();
-    ctx.setLineDash([5, 4]);
-    ctx.strokeStyle = ORANGE;
-    ctx.lineWidth = 1.5;
-    ctx.arc(cx, cy, r * 0.7, 0, Math.PI * 2);
-    ctx.stroke();
-    ctx.setLineDash([]);
-
-    // Subtle fill
-    ctx.beginPath();
-    ctx.arc(cx, cy, r * 0.7, 0, Math.PI * 2);
-    ctx.fillStyle = 'rgba(232,70,30,0.08)';
-    ctx.fill();
-
-    // 飲 kanji
-    ctx.font = `${Math.floor(r * 1.1)}px serif`;
-    ctx.fillStyle = ORANGE;
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText('飲', cx, cy + 2);
-
-  } else {
-    // Empty dashed circle
-    ctx.beginPath();
-    ctx.setLineDash([6, 5]);
-    ctx.strokeStyle = 'rgba(255,255,255,0.18)';
-    ctx.lineWidth = 2;
-    ctx.arc(cx, cy, r - 3, 0, Math.PI * 2);
-    ctx.stroke();
-    ctx.setLineDash([]);
-  }
-
-  ctx.restore();
-}
-
-async function generateCardImage(stamps = 0) {
-  const canvas = createCanvas(W, H);
-  const ctx = canvas.getContext('2d');
-
-  // Background
-  ctx.fillStyle = NAVY;
-  ctx.fillRect(0, 0, W, H);
-
-  // Halftone dots
-  for (let x = 0; x < W; x += 16) {
-    for (let y = 0; y < H; y += 16) {
-      ctx.beginPath();
-      ctx.arc(x, y, 1.5, 0, Math.PI * 2);
-      ctx.fillStyle = 'rgba(232,70,30,0.12)';
-      ctx.fill();
-    }
-  }
-
-  // Fox logo
-  try {
-    const fox = await loadImage(FOX_PATH);
-    const foxH = 290;
-    const foxW = Math.round(foxH * fox.width / fox.height);
-    ctx.drawImage(fox, 16, Math.round((H - foxH) / 2), foxW, foxH);
-
-    // Stamps grid
-    const stampR = 34;
-    const stampGap = 14;
-    const cols = 5;
-    const totalW = cols * (stampR * 2) + (cols - 1) * stampGap;
-    const startX = foxW + 40 + Math.round((W - foxW - 40 - totalW) / 2) + stampR;
-    const startY = 30 + stampR;
-
-    for (let i = 0; i < STAMPS; i++) {
-      const col = i % cols;
-      const row = Math.floor(i / cols);
-      const cx = startX + col * (stampR * 2 + stampGap);
-      const cy = startY + row * (stampR * 2 + stampGap + 8);
-      drawHankoStamp(ctx, cx, cy, stampR, i < stamps);
-    }
-
-    // Progress bar
-    const barY = startY + 2 * (stampR * 2 + stampGap + 8) + 10;
-    const barW = totalW;
-    const barH = 4;
-    const barX = startX - stampR;
-
-    ctx.fillStyle = 'rgba(255,255,255,0.12)';
-    ctx.beginPath();
-    ctx.roundRect(barX, barY, barW, barH, 2);
-    ctx.fill();
-
-    if (stamps > 0) {
-      const fillW = Math.round(barW * stamps / STAMPS);
-      const grad = ctx.createLinearGradient(barX, 0, barX + fillW, 0);
-      grad.addColorStop(0, ORANGE);
-      grad.addColorStop(1, '#ff9060');
-      ctx.fillStyle = grad;
-      ctx.beginPath();
-      ctx.roundRect(barX, barY, fillW, barH, 2);
-      ctx.fill();
-    }
-
-    // Progress text
-    const textY = barY + barH + 14;
-    ctx.font = "bold 22px 'BebasNeue', 'DejaVu Sans', sans-serif";
-    ctx.fillStyle = ORANGE;
-    ctx.textAlign = 'left';
-    ctx.textBaseline = 'top';
-    ctx.letterSpacing = '3px';
-    ctx.fillText(`${stamps} / ${STAMPS}`, barX, textY);
-
-    // Reward text
-    ctx.font = "bold 20px 'BebasNeue', 'DejaVu Sans', sans-serif";
-    if (stamps >= STAMPS) {
-      ctx.fillStyle = WHITE;
-      ctx.fillText('— 🍜 RAMEN OFFERT ! Montre ta carte en caisse', barX + 80, textY);
+  let stampsHTML = '';
+  for (let i = 0; i < STAMPS_FOR_REWARD; i++) {
+    const col = i % cols;
+    const row = Math.floor(i / cols);
+    const cx = startX + col * (stampR * 2 + stampGap) + stampR;
+    const cy = sy + row * (stampR * 2 + stampGap + 8) + stampR;
+    const filled = i < stamps;
+    if (filled) {
+      stampsHTML += `
+        <circle cx="${cx}" cy="${cy}" r="${stampR-2}" fill="none" stroke="${ORANGE}" stroke-width="2.5" stroke-dasharray="10 4"/>
+        <circle cx="${cx}" cy="${cy}" r="${Math.round(stampR*0.68)}" fill="rgba(232,70,30,0.08)" stroke="${ORANGE}" stroke-width="1.5" stroke-dasharray="7 4"/>
+        <text x="${cx}" y="${cy+3}" text-anchor="middle" dominant-baseline="middle" font-family="serif" font-size="${Math.round(stampR*1.1)}" font-weight="900" fill="${ORANGE}">飲</text>`;
     } else {
-      const remaining = STAMPS - stamps;
-      ctx.fillStyle = 'rgba(180,185,220,0.9)';
-      ctx.fillText(`— encore ${remaining} tampon${remaining > 1 ? 's' : ''} pour ton ramen offert`, barX + 80, textY);
+      stampsHTML += `<circle cx="${cx}" cy="${cy}" r="${stampR-2}" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="1.5" stroke-dasharray="8 5"/>`;
     }
-
-    // Slogan bottom right
-    ctx.font = "16px 'DejaVu Sans', sans-serif";
-    ctx.fillStyle = ORANGE;
-    ctx.textAlign = 'right';
-    ctx.textBaseline = 'bottom';
-    ctx.fillText('No Stain, No Gain !!', W - 16, H - 12);
-
-  } catch (err) {
-    console.error('Image generation error:', err.message);
-    // Fallback: just navy background
   }
 
-  return canvas.toBuffer('image/png');
+  const barY = sy + 2*(stampR*2+stampGap+8)+12;
+  const barW = totalStampW;
+  const barX = startX;
+  const fillW = Math.round(barW * stamps / STAMPS_FOR_REWARD);
+  const remaining = STAMPS_FOR_REWARD - stamps;
+  const rewardText = stamps >= STAMPS_FOR_REWARD
+    ? 'RAMEN OFFERT — Montre ta carte !'
+    : `Encore ${remaining} tampon${remaining>1?'s':''} pour ton ramen offert`;
+
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <pattern id="dots" x="0" y="0" width="16" height="16" patternUnits="userSpaceOnUse">
+      <circle cx="8" cy="8" r="1.5" fill="rgba(232,70,30,0.12)"/>
+    </pattern>
+    <linearGradient id="barGrad" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="${ORANGE}"/><stop offset="100%" stop-color="#ff9060"/>
+    </linearGradient>
+  </defs>
+  <rect width="${W}" height="${H}" fill="${NAVY}"/>
+  <rect width="${W}" height="${H}" fill="url(#dots)"/>
+  <circle cx="125" cy="${H/2}" r="115" fill="rgba(232,70,30,0.05)"/>
+  <text x="125" y="${H/2+8}" text-anchor="middle" dominant-baseline="middle" font-size="120">🦊</text>
+  ${stampsHTML}
+  <rect x="${barX}" y="${barY}" width="${barW}" height="4" rx="2" fill="rgba(255,255,255,0.1)"/>
+  ${fillW>0?`<rect x="${barX}" y="${barY}" width="${fillW}" height="4" rx="2" fill="url(#barGrad)"/>`:''}
+  <text x="${barX}" y="${barY+24}" font-family="Arial,sans-serif" font-size="20" font-weight="bold" fill="${ORANGE}" letter-spacing="2">${stamps} / ${STAMPS_FOR_REWARD}</text>
+  <text x="${barX+90}" y="${barY+24}" font-family="Arial,sans-serif" font-size="${stamps>=STAMPS_FOR_REWARD?18:15}" fill="${stamps>=STAMPS_FOR_REWARD?'#ffffff':'rgba(180,185,220,0.9)'}">${rewardText}</text>
+  <text x="${W-16}" y="${H-12}" text-anchor="end" font-family="Arial,sans-serif" font-size="15" fill="${ORANGE}">No Stain, No Gain !!</text>
+</svg>`;
 }
 
-module.exports = { generateCardImage };
+module.exports = { generateCardSVG };

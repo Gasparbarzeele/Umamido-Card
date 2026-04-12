@@ -208,11 +208,11 @@ app.get('/api/card-image/:cardId', async (req, res) => {
   try {
     const card = await db.get_('SELECT * FROM cards WHERE id = ?', [req.params.cardId]);
     if (!card) return res.status(404).send();
-    const { generateCardImage } = require('./cardImage');
-    const buffer = await generateCardImage(card.stamps || 0);
-    res.setHeader('Content-Type', 'image/png');
+    const { generateCardSVG } = require('./cardImage');
+    const svg = generateCardSVG(card.stamps || 0);
+    res.setHeader('Content-Type', 'image/svg+xml');
     res.setHeader('Cache-Control', 'no-cache');
-    res.send(buffer);
+    res.send(svg);
   } catch(e) {
     console.error('Card image error:', e.message);
     res.status(500).send();
