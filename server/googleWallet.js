@@ -93,15 +93,13 @@ async function createLoyaltyObject(card, customer) {
         id: 'progress'
       }
     ],
-    barcode: {
-      type: 'QR_CODE',
-      value: card.id,
-      alternateText: card.id.substring(0, 8).toUpperCase()
-    },
     hexBackgroundColor: '#1a1e5a',
     heroImage: {
-      sourceUri: { uri: `${process.env.BASE_URL}/api/card-image/${card.id}` },
+      sourceUri: { uri: `${process.env.BASE_URL}/api/card-image/${card.id}?t=${Date.now()}` },
       contentDescription: { defaultValue: { language: 'fr-FR', value: 'Carte Umamido' } }
+    },
+    cardTitle: {
+      defaultValue: { language: 'fr-FR', value: 'うまみ道 Fidélité' }
     }
   };
 
@@ -129,6 +127,7 @@ async function updateLoyaltyObject(card, customer) {
   const stamps = card.stamps || 0;
   const objectId = `${ISSUER_ID}.card${card.id.replace(/-/g, '')}`;
 
+  const ts = Date.now();
   const patch = {
     loyaltyPoints: { label: '飲 Tampons', balance: { int: stamps } },
     textModulesData: [
@@ -139,7 +138,11 @@ async function updateLoyaltyObject(card, customer) {
           : `${stamps} / ${STAMPS_FOR_REWARD} tampons — encore ${STAMPS_FOR_REWARD - stamps}`,
         id: 'progress'
       }
-    ]
+    ],
+    heroImage: {
+      sourceUri: { uri: `${process.env.BASE_URL}/api/card-image/${card.id}?t=${ts}` },
+      contentDescription: { defaultValue: { language: 'fr-FR', value: 'Carte Umamido' } }
+    }
   };
 
   try {
