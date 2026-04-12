@@ -79,7 +79,7 @@ async function createLoyaltyObject(card, customer) {
     classId: CLASS_ID,
     state: 'active',
     accountName: customer.name,
-    accountId: card.id.substring(0, 8).toUpperCase(),
+    accountId: ' ',
     loyaltyPoints: {
       label: '飲 Tampons',
       balance: { int: stamps }
