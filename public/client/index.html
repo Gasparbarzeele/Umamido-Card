@@ -149,13 +149,20 @@
   <div class="success" id="successArea">
     <p style="font-family:'Bebas Neue';font-size:1.8rem;color:var(--navy);letter-spacing:3px;">BIENVENUE !</p>
     <p style="font-size:0.75rem;color:#666;margin:8px 0 20px;">Ta carte est prête</p>
+    <a id="googleWalletBtn" href="#" style="
+      display:block;background:#1a73e8;color:white;
+      border-radius:14px;padding:14px;
+      font-family:'Bebas Neue';font-size:1.1rem;letter-spacing:3px;
+      text-decoration:none;margin-bottom:10px;
+      box-shadow:4px 5px 0 var(--orange);
+    ">🤖 AJOUTER À GOOGLE WALLET</a>
     <a id="walletBtn" href="#" style="
       display:block;background:var(--navy);color:white;
       border-radius:14px;padding:14px;
       font-family:'Bebas Neue';font-size:1.1rem;letter-spacing:3px;
       text-decoration:none;margin-bottom:10px;
       box-shadow:4px 5px 0 var(--orange);
-    ">📲 AJOUTER À APPLE WALLET</a>
+    ">🍎 AJOUTER À APPLE WALLET</a>
     <a id="cardBtn" href="#" style="
       display:block;background:white;color:var(--navy);
       border:2px solid var(--navy);border-radius:14px;padding:12px;
@@ -189,7 +196,8 @@ async function joinProgram() {
 
     if (!res.ok) { error.textContent = data.error; return; }
 
-    document.getElementById('walletBtn').href = data.walletUrl;
+    document.getElementById('googleWalletBtn').href = data.walletUrl;
+    document.getElementById('walletBtn').href = data.dashboardUrl + '?wallet=apple';
     document.getElementById('cardBtn').href = data.dashboardUrl;
     document.getElementById('formArea').classList.add('hide');
     document.getElementById('successArea').classList.add('show');
