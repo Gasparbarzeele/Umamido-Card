@@ -1,0 +1,76 @@
+{
+  "formatVersion": 1,
+  "passTypeIdentifier": "pass.com.umamido.loyalty",
+  "teamIdentifier": "YOURTEAMID",
+  "organizationName": "Umamido",
+  "description": "Carte de fidélité Umamido",
+  "serialNumber": "PLACEHOLDER",
+
+  "backgroundColor": "rgb(26, 30, 90)",
+  "foregroundColor": "rgb(255, 255, 255)",
+  "labelColor": "rgb(232, 70, 30)",
+
+  "storeCard": {
+    "primaryFields": [
+      {
+        "key": "stamps",
+        "label": "TAMPONS",
+        "value": "0 / 10",
+        "textAlignment": "PKTextAlignmentCenter"
+      }
+    ],
+    "secondaryFields": [
+      {
+        "key": "stampRow",
+        "label": "",
+        "value": "◦ ◦ ◦ ◦ ◦ ◦ ◦ ◦ ◦ ◦",
+        "textAlignment": "PKTextAlignmentCenter"
+      }
+    ],
+    "auxiliaryFields": [
+      {
+        "key": "reward",
+        "label": "RÉCOMPENSE",
+        "value": "Encore 10 tampons"
+      },
+      {
+        "key": "member",
+        "label": "MEMBRE",
+        "value": "Client Umamido"
+      }
+    ],
+    "backFields": [
+      {
+        "key": "info",
+        "label": "うまみ道",
+        "value": "1 tampon par visite.\nAu bout de 10 tampons, 1 Ramen offert.\n\nValable dans tous les restaurants Umamido."
+      },
+      {
+        "key": "contact",
+        "label": "Site web",
+        "value": "www.umamido.fr",
+        "attributedValue": "<a href='https://www.umamido.fr'>www.umamido.fr</a>"
+      }
+    ]
+  },
+
+  "barcodes": [
+    {
+      "message": "PLACEHOLDER_ID",
+      "format": "PKBarcodeFormatQR",
+      "messageEncoding": "iso-8859-1",
+      "altText": "ID Client"
+    }
+  ],
+
+  "webServiceURL": "https://ton-app.railway.app/api",
+  "authenticationToken": "PLACEHOLDER_TOKEN",
+
+  "locations": [],
+  "maxDistance": 500,
+
+  "relevantDate": "",
+
+  "sharingProhibited": false,
+  "voided": false
+}
