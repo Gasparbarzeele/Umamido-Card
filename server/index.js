@@ -209,7 +209,7 @@ app.get('/api/card-image/:cardId', async (req, res) => {
     const card = await db.get_('SELECT * FROM cards WHERE id = ?', [req.params.cardId]);
     if (!card) return res.status(404).send();
     const { generateCardSVG } = require('./cardImage');
-    const svg = generateCardSVG(card.stamps || 0);
+    const svg = generateCardSVG(card.stamps || 0, card.id);
     res.setHeader('Content-Type', 'image/svg+xml');
     res.setHeader('Cache-Control', 'no-cache');
     res.send(svg);
