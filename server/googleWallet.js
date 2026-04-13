@@ -33,7 +33,7 @@ async function createLoyaltyClass() {
   const classBody = {
     id: CLASS_ID,
     issuerName: 'Umamido',
-    programName: 'うまみ道 Fidélité',
+    programName: 'UMAMIDO',
     programLogo: {
       sourceUri: { uri: 'https://umamido-card-test.up.railway.app/images/logo.png' },
       contentDescription: { defaultValue: { language: 'fr-FR', value: 'Umamido Logo' } }
@@ -99,7 +99,7 @@ async function createLoyaltyObject(card, customer) {
       contentDescription: { defaultValue: { language: 'fr-FR', value: 'Carte Umamido' } }
     },
     cardTitle: {
-      defaultValue: { language: 'fr-FR', value: 'うまみ道 Fidélité' }
+      defaultValue: { language: 'fr-FR', value: 'UMAMIDO' }
     }
   };
 
