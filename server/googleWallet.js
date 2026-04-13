@@ -5,7 +5,7 @@ const jwt = require('jsonwebtoken');
 require('dotenv').config();
 
 const ISSUER_ID = process.env.GOOGLE_ISSUER_ID;
-const CLASS_ID = `${ISSUER_ID}.umamido_loyalty`;
+const CLASS_ID = `${ISSUER_ID}.umamido_loyalty_v2`;
 const STAMPS_FOR_REWARD = 10;
 
 // Parse credentials — from env variable or file
