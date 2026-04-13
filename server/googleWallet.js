@@ -41,7 +41,7 @@ async function createLoyaltyClass() {
     rewardsTier: '飲 Tampon',
     rewardsTierLabel: 'Niveau',
     accountNameLabel: 'Membre',
-    accountIdLabel: ' ',
+    accountIdLabel: 'ID Carte',
     hexBackgroundColor: '#1a1e5a',
     textModulesData: [
       { header: 'Récompense', body: '1 Ramen offert après 10 tampons', id: 'reward_info' },
@@ -79,7 +79,7 @@ async function createLoyaltyObject(card, customer) {
     classId: CLASS_ID,
     state: 'active',
     accountName: customer.name,
-    accountId: ' ',
+    accountId: card.id,
     loyaltyPoints: {
       label: '飲 Tampons',
       balance: { int: stamps }
