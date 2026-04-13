@@ -224,8 +224,19 @@
       <div class="scan-sub">Pointe l'iPad vers la carte Wallet du client</div>
     </div>
 
-    <div class="manual-wrap">
-      <input class="manual-input" id="cardInput" placeholder="Ou entre l'ID de carte manuellement..." onkeydown="if(event.key==='Enter')searchCard()">
+    <div class="manual-wrap" style="position:relative;">
+      <div style="flex:1;position:relative;">
+        <input class="manual-input" id="cardInput" placeholder="Recherche par nom, email ou ID..." autocomplete="off"
+          oninput="onSearchInput(this.value)"
+          onkeydown="if(event.key==='Enter'){selectFirst();} if(event.key==='Escape'){closeSuggestions();}">
+        <div id="suggestions" style="
+          display:none;
+          position:absolute; top:100%; left:0; right:0; z-index:100;
+          background:#1e2460; border:1px solid rgba(232,70,30,0.3);
+          border-radius:12px; margin-top:4px; overflow:hidden;
+          box-shadow:0 8px 24px rgba(0,0,0,0.4);
+        "></div>
+      </div>
       <button class="search-btn" onclick="searchCard()">CHERCHER</button>
     </div>
 
@@ -431,7 +442,67 @@ function showToast(msg, type = '') {
   toastTimer = setTimeout(() => t.className = '', 2500);
 }
 
-// Auto-focus input on card scan (pour lecteur QR externe)
+// ====== AUTOCOMPLETE SEARCH ======
+let searchTimer = null;
+
+function onSearchInput(val) {
+  clearTimeout(searchTimer);
+  if (val.length < 2) { closeSuggestions(); return; }
+  searchTimer = setTimeout(() => fetchSuggestions(val), 180);
+}
+
+async function fetchSuggestions(q) {
+  try {
+    const res = await fetch(`/api/staff/search?q=${encodeURIComponent(q)}`);
+    const results = await res.json();
+    showSuggestions(results);
+  } catch(e) {}
+}
+
+function showSuggestions(results) {
+  const box = document.getElementById('suggestions');
+  if (!results.length) { closeSuggestions(); return; }
+  box.innerHTML = results.map((r, i) => `
+    <div onclick="selectSuggestion('${r.card_id}')" style="
+      padding:12px 16px; cursor:pointer;
+      border-bottom:1px solid rgba(255,255,255,0.06);
+      display:flex; align-items:center; justify-content:space-between;
+      transition:background .15s;
+    " onmouseover="this.style.background='rgba(232,70,30,0.12)'" onmouseout="this.style.background='transparent'">
+      <div>
+        <div style="font-family:'Bebas Neue',cursive;font-size:1rem;color:white;letter-spacing:2px;">${r.name}</div>
+        <div style="font-size:.55rem;color:rgba(255,255,255,.35);margin-top:2px;font-family:monospace;">${r.card_id.substring(0,8).toUpperCase()} · ${r.email||r.phone||''}</div>
+      </div>
+      <div style="font-family:'Bebas Neue',cursive;font-size:.85rem;color:var(--orange);letter-spacing:1px;">${r.stamps}/10 🦊</div>
+    </div>
+  `).join('');
+  box.style.display = 'block';
+}
+
+function selectSuggestion(cardId) {
+  document.getElementById('cardInput').value = cardId;
+  closeSuggestions();
+  searchCard(cardId);
+}
+
+function selectFirst() {
+  const first = document.querySelector('#suggestions div[onclick]');
+  if (first) first.click();
+  else searchCard();
+}
+
+function closeSuggestions() {
+  document.getElementById('suggestions').style.display = 'none';
+}
+
+// Close suggestions on click outside
+document.addEventListener('click', e => {
+  if (!e.target.closest('#cardInput') && !e.target.closest('#suggestions')) {
+    closeSuggestions();
+  }
+});
+
+
 document.getElementById('cardInput').addEventListener('input', function() {
   if (this.value.length === 36) { // UUID length
     searchCard(this.value);

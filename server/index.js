@@ -122,7 +122,21 @@ app.post('/api/staff/login', async (req, res) => {
   res.json({ success: true, staff: { id: staff.id, name: staff.name, role: staff.role } });
 });
 
-// ── Scan carte ────────────────────────────────────────────────────────────────
+// ── Recherche clients ─────────────────────────────────────────────────────────
+app.get('/api/staff/search', async (req, res) => {
+  const q = (req.query.q || '').trim().toLowerCase();
+  if (!q || q.length < 2) return res.json([]);
+  const customers = await db.all_(
+    `SELECT cu.name, cu.email, cu.phone, ca.id as card_id, ca.stamps, ca.total_stamps
+     FROM customers cu JOIN cards ca ON ca.customer_id = cu.id
+     WHERE LOWER(cu.name) LIKE ? OR LOWER(cu.email) LIKE ? OR ca.id LIKE ?
+     LIMIT 6`,
+    [`%${q}%`, `%${q}%`, `%${q}%`]
+  );
+  res.json(customers);
+});
+
+
 app.get('/api/staff/scan/:cardId', async (req, res) => {
   const card = await db.get_('SELECT * FROM cards WHERE id = ?', [req.params.cardId]);
   if (!card) return res.status(404).json({ error: 'Carte introuvable' });
